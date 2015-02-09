@@ -7,5 +7,3 @@ var $ = require('jquery');
 var kohonen = require('kohonen/kohonen');
 
 kohonen.init(3,4,5);
-
-console.log(kohonen.step());

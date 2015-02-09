@@ -53,8 +53,6 @@
 	var kohonen = __webpack_require__(4);
 	
 	kohonen.init(3,4,5);
-	
-	console.log(kohonen.step());
 
 /***/ },
 /* 1 */
@@ -79,15 +77,17 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
+	 * http://en.wikipedia.org/wiki/Self-organizing_map
 	 * Created by nicolasmondon on 09/02/15.
 	 */
 	
 	'use strict';
 	
 	var _ = __webpack_require__(6);
+	var d3 = __webpack_require__(1);
 	
 	var MatrixProto = __webpack_require__(5);
-	var VectorProto = __webpack_require__(7);
+	var VectorUtil = __webpack_require__(9);
 	
 	module.exports = {
 	
@@ -99,16 +99,70 @@
 	
 	    l: 0,
 	
-	    init: function(x,y,l){
+	    init: function (x, y, l) {
 	        this.x = x;
 	        this.y = y;
 	        this.l = l;
-	        this.matrix = Object.create(MatrixProto).init(x,y,l);
+	        this.matrix = Object.create(MatrixProto).init(x, y, l);
 	    },
 	
-	    step: function(){
-	        var v = Object.create(VectorProto).init(null, null, this.l);
-	        return this.matrix.findClosestVector(v);
+	    currentStep: 0,
+	
+	    /**
+	     * scale function to decrease neighborhood function return with time
+	     */
+	    scaleStepNeighborhood: d3.scale.linear()
+	        .domain([0, 250])
+	        .range([1,.75])
+	        .clamp(true),
+	
+	    /**
+	     * http://en.wikipedia.org/wiki/Gaussian_function#Two-dimensional_Gaussian_function
+	     * @param u bmu neuron
+	     * @param v neighbor
+	     * @param s current iteration
+	     */
+	    neighborhood: function (u, v, s) {
+	        var a = 1,
+	            sigmaX = 1,
+	            sigmaY = 1;
+	        return a * Math.exp(-(
+	                Math.pow(v.x - u.x, 2)/2*Math.pow(sigmaX, 2)
+	                +
+	                Math.pow(v.y - u.y, 2)/2*Math.pow(sigmaY, 2)
+	            ))*this.scaleStepNeighborhood(s);
+	    },
+	
+	    scaleStepLearningCoef: d3.scale.linear()
+	        .domain([0,250])
+	        .range([1,.5])
+	        .clamp(true),
+	
+	    learningCoef: function(s){
+	        return this.scaleStepLearningCoef(s);
+	    },
+	
+	    step: function () {
+	        // generate a new vector
+	        var v = VectorUtil.generate(this.l);
+	        // find bmu
+	        var bmu = this.matrix.findBestMatchingUnit(v);
+	        // compute current learning coef
+	        var currentLearningCoef = this.learningCoef(this.currentStep);
+	        // updates neurons' vector
+	        this.matrix.neurons.forEach(function(n){
+	            // compute neighborhood function for current neuron
+	            var currentNeighborhood = this.neighborhood(bmu, n, this.currentStep);
+	            // compute delta
+	            var delta = VectorUtil.mult(
+	                VectorUtil.diff(n.vec, v),
+	                currentNeighborhood * currentLearningCoef
+	            );
+	            // update current neuron's vector
+	            n.setVector(VectorUtil.add(n.vec, delta));
+	        }, this);
+	        // increment step
+	        this.currentStep++;
 	    }
 	
 	};
@@ -125,10 +179,12 @@
 	
 	var _ = __webpack_require__(6);
 	
-	var VectorProto = __webpack_require__(7);
+	var NeuronProto = __webpack_require__(8);
+	var VectorUtil = __webpack_require__(9);
 	
 	module.exports = {
-	    el: null,
+	
+	    neurons: null,
 	    /**
 	     * create a random matrix
 	     * @param x
@@ -136,18 +192,20 @@
 	     * @param l
 	     */
 	    init: function (x, y, l) {
-	        this.el = _.range(0, x).map(function () {
-	            return _.range(0, y).map(function () {
-	                return Object.create(VectorProto).init(x,y,l);
+	        this.neurons = _.flatten(
+	            _.range(0, x).map(function () {
+	                return _.range(0, y).map(function () {
+	                    return Object.create(NeuronProto).init(x, y, l);
+	                })
 	            })
-	        });
+	        );
 	        // chaining pattern
 	        return this;
 	    },
 	
-	    findClosestVector: function(v){
-	        return  _.sortBy(_.flatten(this.el), function(vec){
-	            return vec.diff(v);
+	    findBestMatchingUnit: function (v) {
+	        return _.sortBy(this.neurons, function (neuron) {
+	            return VectorUtil(neuron.vec, v);
 	        })[0];
 	    }
 	};
@@ -159,7 +217,43 @@
 	module.exports = _;
 
 /***/ },
-/* 7 */
+/* 7 */,
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Created by nicolasmondon on 09/02/15.
+	 */
+	
+	'use strict';
+	
+	var _ = __webpack_require__(6);
+	var VectorUtil = __webpack_require__(9);
+	
+	module.exports = {
+	    x: 0,
+	    y: 0,
+	    vec: null,
+	    init: function (x,y,l) {
+	        this.x = x;
+	        this.y = y;
+	        this.vec = VectorUtil.generate(l);
+	        // chaining pattern
+	        return this;
+	    },
+	    setVector: function(v){
+	        this.vec = v;
+	    },
+	    /**
+	     * @param n
+	     */
+	    distanceFromNeuron: function(n){
+	        return VectorUtil.dist([this.x, this.y], [n.x, n.y]);
+	    }
+	};
+
+/***/ },
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -171,29 +265,35 @@
 	var _ = __webpack_require__(6);
 	
 	module.exports = {
-	    x: 0,
-	    y: 0,
-	    el: null,
-	    init: function (x,y,l) {
-	        this.x = x;
-	        this.y = y;
-	        this.el = _.range(0, l).map(function () {
-	            return Math.random();
+	    mult: function(v, coef){
+	        return v.map(function(val){
+	            return val * coef;
 	        });
-	        // chaining pattern
-	        return this;
 	    },
-	    get: function (i) {
-	        return this.el[i];
+	    add: function(v1, v2){
+	        return v1.map(function(val, i){
+	            return val + v2[i];
+	        });
 	    },
-	    diff: function(v){
-	        return _.reduce(this.el.map(function(val, i){
-	            return Math.abs(v.get(i) - val);
+	    diff: function(v1, v2){
+	        return v1.map(function(val, i){
+	            return v2[i] - val;
+	        });
+	    },
+	    dist: function(v1, v2){
+	        return Math.sqrt(_.reduce(v1.map(function(val, i){
+	            return Math.pow(v2[i] - val, 2);
 	        }), function(sum, val){
 	            return sum + val;
-	        })
+	        }));
+	    },
+	    generate: function(dim){
+	        return _.range(0, dim).map(function(){
+	            return Math.random();
+	        });
 	    }
 	};
+
 
 /***/ }
 /******/ ])

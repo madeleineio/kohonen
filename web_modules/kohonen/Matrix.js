@@ -6,10 +6,12 @@
 
 var _ = require('lodash');
 
-var VectorProto = require('kohonen/Vector');
+var NeuronProto = require('kohonen/Neuron');
+var VectorUtil = require('kohonen/VectorUtil');
 
 module.exports = {
-    el: null,
+
+    neurons: null,
     /**
      * create a random matrix
      * @param x
@@ -17,18 +19,20 @@ module.exports = {
      * @param l
      */
     init: function (x, y, l) {
-        this.el = _.range(0, x).map(function () {
-            return _.range(0, y).map(function () {
-                return Object.create(VectorProto).init(x,y,l);
+        this.neurons = _.flatten(
+            _.range(0, x).map(function () {
+                return _.range(0, y).map(function () {
+                    return Object.create(NeuronProto).init(x, y, l);
+                })
             })
-        });
+        );
         // chaining pattern
         return this;
     },
 
-    findClosestVector: function(v){
-        return  _.sortBy(_.flatten(this.el), function(vec){
-            return vec.diff(v);
+    findBestMatchingUnit: function (v) {
+        return _.sortBy(this.neurons, function (neuron) {
+            return VectorUtil(neuron.vec, v);
         })[0];
     }
 };
