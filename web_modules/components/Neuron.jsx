@@ -9,9 +9,6 @@ var scaleColor = d3.scale.linear()
     .range([0,255]);
 
 var Neuron = React.createClass({
-    statics: {
-        r: 40
-    },
     render: function () {
         var style = {
             fill: d3.rgb(
@@ -25,7 +22,7 @@ var Neuron = React.createClass({
                 style={style}
                 cx={this.props.cx}
                 cy={this.props.cy}
-                r={Neuron.r} />
+                r={this.props.r} />
         );
     }
 });

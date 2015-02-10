@@ -20,36 +20,40 @@ var Kohonen = React.createClass({
             kohonen: kohonen.init(this.props.x, this.props.y, this.props.l)
         }
     },
-    componentDidMount: function(){
-        function step(){
-            if(this.state.kohonen.currentStep < 10000){
+    componentDidMount: function () {
+        function step() {
+            if (this.state.kohonen.currentStep < 10000) {
                 this.setState({
                     kohonen: this.state.kohonen.learn()
                 });
                 window.requestAnimationFrame(step.bind(this))
-            }else {
+            } else {
                 alert('learning completed');
             }
         };
         window.requestAnimationFrame(step.bind(this));
     },
     render: function () {
-        var scaleX =  d3.scale.linear()
-            .domain([0,this.props.x-1])
-            .range([margin, $('body').width() - margin]);
+        var w = $('body').width();
+        var h = $('body').height();
+        var scaleX = d3.scale.linear()
+            .domain([0, this.props.x - 1])
+            .range([margin, w - margin]);
         var scaleY = d3.scale.linear()
-            .domain([0,this.props.y-1])
-            .range([margin, $('body').height() - margin]);
+            .domain([0, this.props.y - 1])
+            .range([margin, h - margin]);
 
         return (
             <svg className={'svg-kohonen'}>
-            {this.state.kohonen.matrix.neurons.map(function (n,k) {
-                return <Neuron
-                    key={k}
-                    neuron={n}
-                    cx={scaleX(n.x)}
-                    cy={scaleY(n.y)}/>
-            })}
+                {this.state.kohonen.matrix.neurons.map(function (n, k) {
+                    return <Neuron
+                        key={k}
+                        r={(scaleX(1) - scaleX(0)) / 1.3}
+                        neuron={n}
+                        cx={scaleX(n.x)}
+                        cy={scaleY(n.y)}/>
+                })}
+                <text className={'text-learning-step'} x={w/2} y={h/2}>{'training steps : ' + this.state.kohonen.currentStep}</text>
             </svg>
         );
     }
@@ -58,10 +62,7 @@ var Kohonen = React.createClass({
 
 $(function () {
     React.render(
-        <Kohonen x={20} y={20} l={3}/>,
+        <Kohonen x={25} y={25} l={3}/>,
         $('body').get(0)
     );
 });
-
-kohonen.init(3, 4, 5);
-kohonen.step();

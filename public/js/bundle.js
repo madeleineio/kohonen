@@ -66,36 +66,40 @@
 	            kohonen: kohonen.init(this.props.x, this.props.y, this.props.l)
 	        }
 	    },
-	    componentDidMount: function(){
-	        var interv = window.setInterval(function(){
-	            if(this.state.kohonen.currentStep < 10000){
+	    componentDidMount: function () {
+	        function step() {
+	            if (this.state.kohonen.currentStep < 10000) {
 	                this.setState({
 	                    kohonen: this.state.kohonen.learn()
-	                })
-	            }else {
-	                window.clearInterval(interv);
+	                });
+	                window.requestAnimationFrame(step.bind(this))
+	            } else {
 	                alert('learning completed');
 	            }
-	
-	        }.bind(this), 1);
+	        };
+	        window.requestAnimationFrame(step.bind(this));
 	    },
 	    render: function () {
-	        var scaleX =  d3.scale.linear()
-	            .domain([0,this.props.x-1])
-	            .range([margin, $('body').width() - margin]);
+	        var w = $('body').width();
+	        var h = $('body').height();
+	        var scaleX = d3.scale.linear()
+	            .domain([0, this.props.x - 1])
+	            .range([margin, w - margin]);
 	        var scaleY = d3.scale.linear()
-	            .domain([0,this.props.y-1])
-	            .range([margin, $('body').height() - margin]);
+	            .domain([0, this.props.y - 1])
+	            .range([margin, h - margin]);
 	
 	        return (
 	            React.createElement("svg", {className: 'svg-kohonen'}, 
-	            this.state.kohonen.matrix.neurons.map(function (n,k) {
-	                return React.createElement(Neuron, {
-	                    key: k, 
-	                    neuron: n, 
-	                    cx: scaleX(n.x), 
-	                    cy: scaleY(n.y)})
-	            })
+	                this.state.kohonen.matrix.neurons.map(function (n, k) {
+	                    return React.createElement(Neuron, {
+	                        key: k, 
+	                        r: (scaleX(1) - scaleX(0)) / 1.3, 
+	                        neuron: n, 
+	                        cx: scaleX(n.x), 
+	                        cy: scaleY(n.y)})
+	                }), 
+	                React.createElement("text", {className: 'text-learning-step', x: w/2, y: h/2}, 'training steps : ' + this.state.kohonen.currentStep)
 	            )
 	        );
 	    }
@@ -104,14 +108,10 @@
 	
 	$(function () {
 	    React.render(
-	        React.createElement(Kohonen, {x: 20, y: 20, l: 3}),
+	        React.createElement(Kohonen, {x: 25, y: 25, l: 3}),
 	        $('body').get(0)
 	    );
 	});
-	
-	kohonen.init(3, 4, 5);
-	kohonen.step();
-
 
 /***/ },
 /* 1 */
@@ -243,9 +243,6 @@
 	    .range([0,255]);
 	
 	var Neuron = React.createClass({displayName: "Neuron",
-	    statics: {
-	        r: 40
-	    },
 	    render: function () {
 	        var style = {
 	            fill: d3.rgb(
@@ -259,7 +256,7 @@
 	                style: style, 
 	                cx: this.props.cx, 
 	                cy: this.props.cy, 
-	                r: Neuron.r})
+	                r: this.props.r})
 	        );
 	    }
 	});
@@ -382,7 +379,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(13)();
-	exports.push([module.id, "html,body{margin:0;width:100%;height:100%}.svg-kohonen{width:100%;height:100%}", ""]);
+	exports.push([module.id, "html,body{margin:0;width:100%;height:100%}.svg-kohonen{width:100%;height:100%}.svg-kohonen .text-learning-step{font-family:\"Helvetica Neue Light\",\"HelveticaNeue-Light\",\"Helvetica Neue\",Calibri,Helvetica,Arial;font-size:40px;text-anchor:middle}", ""]);
 
 /***/ },
 /* 11 */

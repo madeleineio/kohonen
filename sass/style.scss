@@ -7,4 +7,10 @@ html, body {
 .svg-kohonen {
   width: 100%;
   height: 100%;
+
+  .text-learning-step {
+    font-family: "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial;
+    font-size: 40px;
+    text-anchor: middle;
+  }
 }
