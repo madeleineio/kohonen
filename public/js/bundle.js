@@ -67,11 +67,17 @@
 	        }
 	    },
 	    componentDidMount: function(){
-	        window.setInterval(function(){
-	            this.setState({
-	                kohonen: this.state.kohonen.step()
-	            })
-	        }.bind(this), 20);
+	        var interv = window.setInterval(function(){
+	            if(this.state.kohonen.currentStep < 10000){
+	                this.setState({
+	                    kohonen: this.state.kohonen.learn()
+	                })
+	            }else {
+	                window.clearInterval(interv);
+	                alert('learning completed');
+	            }
+	
+	        }.bind(this), 1);
 	    },
 	    render: function () {
 	        var scaleX =  d3.scale.linear()
@@ -166,8 +172,8 @@
 	     * scale function to decrease neighborhood function return with time
 	     */
 	    scaleStepNeighborhood: d3.scale.linear()
-	        .domain([0, 250])
-	        .range([1,.75])
+	        .domain([0, 10000])
+	        .range([1,.3])
 	        .clamp(true),
 	
 	    /**
@@ -188,15 +194,15 @@
 	    },
 	
 	    scaleStepLearningCoef: d3.scale.linear()
-	        .domain([0,250])
-	        .range([1,.5])
+	        .domain([0,10000])
+	        .range([1,.3])
 	        .clamp(true),
 	
 	    learningCoef: function(s){
 	        return this.scaleStepLearningCoef(s);
 	    },
 	
-	    step: function () {
+	    learn: function () {
 	        // generate a new vector
 	        var v = VectorUtil.generate(this.l);
 	        // find bmu

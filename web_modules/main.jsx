@@ -21,11 +21,17 @@ var Kohonen = React.createClass({
         }
     },
     componentDidMount: function(){
-        window.setInterval(function(){
-            this.setState({
-                kohonen: this.state.kohonen.step()
-            })
-        }.bind(this), 20);
+        var interv = window.setInterval(function(){
+            if(this.state.kohonen.currentStep < 10000){
+                this.setState({
+                    kohonen: this.state.kohonen.learn()
+                })
+            }else {
+                window.clearInterval(interv);
+                alert('learning completed');
+            }
+
+        }.bind(this), 1);
     },
     render: function () {
         var scaleX =  d3.scale.linear()

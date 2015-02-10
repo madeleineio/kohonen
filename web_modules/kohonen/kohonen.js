@@ -35,8 +35,8 @@ module.exports = {
      * scale function to decrease neighborhood function return with time
      */
     scaleStepNeighborhood: d3.scale.linear()
-        .domain([0, 250])
-        .range([1,.75])
+        .domain([0, 10000])
+        .range([1,.3])
         .clamp(true),
 
     /**
@@ -57,15 +57,15 @@ module.exports = {
     },
 
     scaleStepLearningCoef: d3.scale.linear()
-        .domain([0,250])
-        .range([1,.5])
+        .domain([0,10000])
+        .range([1,.3])
         .clamp(true),
 
     learningCoef: function(s){
         return this.scaleStepLearningCoef(s);
     },
 
-    step: function () {
+    learn: function () {
         // generate a new vector
         var v = VectorUtil.generate(this.l);
         // find bmu
