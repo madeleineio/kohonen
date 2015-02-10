@@ -1,7 +1,3 @@
-/**
- * Created by nicolasmondon on 09/02/15.
- */
-
 'use strict';
 
 var _ = require('lodash');
@@ -20,9 +16,9 @@ module.exports = {
      */
     init: function (x, y, l) {
         this.neurons = _.flatten(
-            _.range(0, x).map(function () {
-                return _.range(0, y).map(function () {
-                    return Object.create(NeuronProto).init(x, y, l);
+            _.range(0, x).map(function (i) {
+                return _.range(0, y).map(function (j) {
+                    return Object.create(NeuronProto).init(i, j, l);
                 })
             })
         );
@@ -32,7 +28,7 @@ module.exports = {
 
     findBestMatchingUnit: function (v) {
         return _.sortBy(this.neurons, function (neuron) {
-            return VectorUtil(neuron.vec, v);
+            return VectorUtil.dist(neuron.vec, v);
         })[0];
     }
 };

@@ -26,6 +26,7 @@ module.exports = {
         this.y = y;
         this.l = l;
         this.matrix = Object.create(MatrixProto).init(x, y, l);
+        return this;
     },
 
     currentStep: 0,
@@ -85,6 +86,7 @@ module.exports = {
         }, this);
         // increment step
         this.currentStep++;
+        return this;
     }
 
 };

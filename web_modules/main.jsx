@@ -1,9 +1,61 @@
 'use strict';
 
-var d3 = require('d3');
+require('style.scss');
+
 var React = require('react');
 var $ = require('jquery');
+var d3 = require('d3');
 
 var kohonen = require('kohonen/kohonen');
+var Neuron = require('components/Neuron');
 
-kohonen.init(3,4,5);
+var margin = 50;
+
+/**
+ *
+ */
+var Kohonen = React.createClass({
+    getInitialState: function () {
+        return {
+            kohonen: kohonen.init(this.props.x, this.props.y, this.props.l)
+        }
+    },
+    componentDidMount: function(){
+        window.setInterval(function(){
+            this.setState({
+                kohonen: this.state.kohonen.step()
+            })
+        }.bind(this), 20);
+    },
+    render: function () {
+        var scaleX =  d3.scale.linear()
+            .domain([0,this.props.x])
+            .range([margin, $('body').width() - margin]);
+        var scaleY = d3.scale.linear()
+            .domain([0,this.props.y])
+            .range([margin, $('body').height() - margin]);
+
+        return (
+            <svg className={'svg-kohonen'}>
+            {this.state.kohonen.matrix.neurons.map(function (n,k) {
+                return <Neuron
+                    key={k}
+                    neuron={n}
+                    cx={scaleX(n.x)}
+                    cy={scaleY(n.y)}/>
+            })}
+            </svg>
+        );
+    }
+});
+
+
+$(function () {
+    React.render(
+        <Kohonen x={20} y={20} l={3}/>,
+        $('body').get(0)
+    );
+});
+
+kohonen.init(3, 4, 5);
+kohonen.step();
