@@ -29,10 +29,10 @@ var Kohonen = React.createClass({
     },
     render: function () {
         var scaleX =  d3.scale.linear()
-            .domain([0,this.props.x])
+            .domain([0,this.props.x-1])
             .range([margin, $('body').width() - margin]);
         var scaleY = d3.scale.linear()
-            .domain([0,this.props.y])
+            .domain([0,this.props.y-1])
             .range([margin, $('body').height() - margin]);
 
         return (

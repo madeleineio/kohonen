@@ -46,14 +46,14 @@
 
 	'use strict';
 	
-	__webpack_require__(11);
+	__webpack_require__(9);
 	
-	var React = __webpack_require__(2);
-	var $ = __webpack_require__(3);
-	var d3 = __webpack_require__(1);
+	var React = __webpack_require__(1);
+	var $ = __webpack_require__(2);
+	var d3 = __webpack_require__(3);
 	
 	var kohonen = __webpack_require__(4);
-	var Neuron = __webpack_require__(10);
+	var Neuron = __webpack_require__(5);
 	
 	var margin = 50;
 	
@@ -75,10 +75,10 @@
 	    },
 	    render: function () {
 	        var scaleX =  d3.scale.linear()
-	            .domain([0,this.props.x])
+	            .domain([0,this.props.x-1])
 	            .range([margin, $('body').width() - margin]);
 	        var scaleY = d3.scale.linear()
-	            .domain([0,this.props.y])
+	            .domain([0,this.props.y-1])
 	            .range([margin, $('body').height() - margin]);
 	
 	        return (
@@ -111,19 +111,19 @@
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = d3;
+	module.exports = React;
 
 /***/ },
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = React;
+	module.exports = jQuery;
 
 /***/ },
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = jQuery;
+	module.exports = d3;
 
 /***/ },
 /* 4 */
@@ -136,11 +136,11 @@
 	
 	'use strict';
 	
-	var _ = __webpack_require__(5);
-	var d3 = __webpack_require__(1);
+	var _ = __webpack_require__(6);
+	var d3 = __webpack_require__(3);
 	
-	var MatrixProto = __webpack_require__(6);
-	var VectorUtil = __webpack_require__(7);
+	var MatrixProto = __webpack_require__(7);
+	var VectorUtil = __webpack_require__(8);
 	
 	module.exports = {
 	
@@ -226,18 +226,56 @@
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = _;
+	'use strict';
+	
+	var React = __webpack_require__(1);
+	var d3 = __webpack_require__(3);
+	var $ = __webpack_require__(2);
+	
+	var scaleColor = d3.scale.linear()
+	    .domain([0,1])
+	    .range([0,255]);
+	
+	var Neuron = React.createClass({displayName: "Neuron",
+	    statics: {
+	        r: 40
+	    },
+	    render: function () {
+	        var style = {
+	            fill: d3.rgb(
+	                scaleColor(this.props.neuron.vec[0]),
+	                scaleColor(this.props.neuron.vec[1]),
+	                scaleColor(this.props.neuron.vec[2])
+	            )
+	        };
+	        return (
+	            React.createElement("circle", {
+	                style: style, 
+	                cx: this.props.cx, 
+	                cy: this.props.cy, 
+	                r: Neuron.r})
+	        );
+	    }
+	});
+	
+	module.exports = Neuron;
 
 /***/ },
 /* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
+	module.exports = _;
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
 	'use strict';
 	
-	var _ = __webpack_require__(5);
+	var _ = __webpack_require__(6);
 	
-	var NeuronProto = __webpack_require__(8);
-	var VectorUtil = __webpack_require__(7);
+	var NeuronProto = __webpack_require__(12);
+	var VectorUtil = __webpack_require__(8);
 	
 	module.exports = {
 	
@@ -268,7 +306,7 @@
 	};
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -277,7 +315,7 @@
 	
 	'use strict';
 	
-	var _ = __webpack_require__(5);
+	var _ = __webpack_require__(6);
 	
 	module.exports = {
 	    mult: function(v, coef){
@@ -311,90 +349,16 @@
 
 
 /***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Created by nicolasmondon on 09/02/15.
-	 */
-	
-	'use strict';
-	
-	var _ = __webpack_require__(5);
-	var VectorUtil = __webpack_require__(7);
-	
-	module.exports = {
-	    x: 0,
-	    y: 0,
-	    vec: null,
-	    init: function (x,y,l) {
-	        this.x = x;
-	        this.y = y;
-	        this.vec = VectorUtil.generate(l);
-	        // chaining pattern
-	        return this;
-	    },
-	    setVector: function(v){
-	        this.vec = v;
-	    },
-	    /**
-	     * @param n
-	     */
-	    distanceFromNeuron: function(n){
-	        return VectorUtil.dist([this.x, this.y], [n.x, n.y]);
-	    }
-	};
-
-/***/ },
-/* 9 */,
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	var React = __webpack_require__(2);
-	var d3 = __webpack_require__(1);
-	var $ = __webpack_require__(3);
-	
-	var scaleColor = d3.scale.linear()
-	    .domain([0,1])
-	    .range([0,255]);
-	
-	var Neuron = React.createClass({displayName: "Neuron",
-	    statics: {
-	        r: 40
-	    },
-	    render: function () {
-	        var style = {
-	            fill: d3.rgb(
-	                scaleColor(this.props.neuron.vec[0]),
-	                scaleColor(this.props.neuron.vec[1]),
-	                scaleColor(this.props.neuron.vec[2])
-	            )
-	        };
-	        return (
-	            React.createElement("circle", {
-	                style: style, 
-	                cx: this.props.cx, 
-	                cy: this.props.cy, 
-	                r: Neuron.r})
-	        );
-	    }
-	});
-	
-	module.exports = Neuron;
-
-/***/ },
-/* 11 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(12);
+	var content = __webpack_require__(10);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(13)(content, {});
+	var update = __webpack_require__(11)(content, {});
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
@@ -408,14 +372,14 @@
 	}
 
 /***/ },
-/* 12 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(14)();
+	exports = module.exports = __webpack_require__(13)();
 	exports.push([module.id, "html,body{margin:0;width:100%;height:100%}.svg-kohonen{width:100%;height:100%}", ""]);
 
 /***/ },
-/* 13 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -611,7 +575,42 @@
 
 
 /***/ },
-/* 14 */
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Created by nicolasmondon on 09/02/15.
+	 */
+	
+	'use strict';
+	
+	var _ = __webpack_require__(6);
+	var VectorUtil = __webpack_require__(8);
+	
+	module.exports = {
+	    x: 0,
+	    y: 0,
+	    vec: null,
+	    init: function (x,y,l) {
+	        this.x = x;
+	        this.y = y;
+	        this.vec = VectorUtil.generate(l);
+	        // chaining pattern
+	        return this;
+	    },
+	    setVector: function(v){
+	        this.vec = v;
+	    },
+	    /**
+	     * @param n
+	     */
+	    distanceFromNeuron: function(n){
+	        return VectorUtil.dist([this.x, this.y], [n.x, n.y]);
+	    }
+	};
+
+/***/ },
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function() {
