@@ -62,7 +62,7 @@ var Kohonen = React.createClass({
 
 $(function () {
     React.render(
-        <Kohonen x={25} y={25} l={3}/>,
+        <Kohonen x={20} y={20} l={3}/>,
         $('body').get(0)
     );
 });

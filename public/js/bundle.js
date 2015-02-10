@@ -108,7 +108,7 @@
 	
 	$(function () {
 	    React.render(
-	        React.createElement(Kohonen, {x: 25, y: 25, l: 3}),
+	        React.createElement(Kohonen, {x: 20, y: 20, l: 3}),
 	        $('body').get(0)
 	    );
 	});
